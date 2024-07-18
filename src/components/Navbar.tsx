@@ -18,7 +18,7 @@ const NavbarContainer = styled.div`
   justify-content: center;
   align-items: center;
   padding: 10px 20px;
-  color: white;
+  color: black;
 `;
 
 const SearchBar = styled.div`
