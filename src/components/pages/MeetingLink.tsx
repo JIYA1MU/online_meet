@@ -1,122 +1,109 @@
-import React from 'react';
-import { FaMicrophone, FaVideo } from 'react-icons/fa';
-import Navbar from "../Navbar"
-import Sidebar from "../Sidebar"
+import styled from "styled-components"
+import Layout from "../Layout"
+import { useEffect, useState } from "react";
+import { FaVideo } from "react-icons/fa";
+import { IoAddCircleSharp, IoShareSharp } from "react-icons/io5";
+import { BsFillCalendar2DateFill } from "react-icons/bs";
+
+const value = [
+  {
+    id : 1,
+    icon : <FaVideo />,
+    name : 'New Meeting',
+    bgColor : 'orange'
+  },
+  {
+    id : 2,
+    icon : <IoAddCircleSharp />,
+    name : 'Join',
+    bgColor : '#035C7A'
+  },
+  {
+    id : 3,
+    icon : <BsFillCalendar2DateFill />,
+    name : 'Schedule',
+    bgColor : '#035C7A'
+  },
+  {
+    id : 4,
+    icon : <IoShareSharp />,
+    name : 'Share screen',
+    bgColor : '#035C7A'
+  }
+]
 
 export const MeetingLink = () => {
+  
+  const [currentTime , setCurrentTime] = useState(new Date());
+ 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(interval); 
+  }, []);
+
+  const formatDate = (date : any) => {
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    return date.toLocaleDateString('en-US', options);
+  }
+
   return (
-    <div style={styles.container}>
-      <Sidebar />
-      <main style={styles.main}>
-        <Navbar />
-        <section style={styles.meetingSection}>
-          <div style={styles.leftPanel}>
-            <div style={styles.videoContainer}>
-              <img
-                src="src/assets/12.webp" // Replace with the actual meeting image URL
-                alt="Meeting"
-                style={styles.video}
-              />
+    <Layout>
+      <MeetLink>
+        <h1>{currentTime.toLocaleTimeString()}</h1>
+        <div className = "date">{formatDate(currentTime)}</div>
+        <div className="icon-container">
+          {value.map(item => (
+            <div className = "box">
+              <div key={item.id} className="icon" style={{ backgroundColor: item.bgColor }}>
+                {item.icon}
+              </div>
+              <div className = "name">{item.name}</div>         
             </div>
-            <div style={styles.controls}>
-              <button style={styles.controlButton}>
-                <FaMicrophone />
-              </button>
-              <button style={styles.controlButton}>
-                <FaVideo />
-              </button>
-            </div>
-          </div>
-          <div style={styles.meetingInfo}>
-            <h2>ujk-thk-luwg</h2>
-            <p>No one else in the meeting</p>
-            <button style={styles.joinButton}>Join now</button>
-            <button style={styles.presentButton}>Present</button>
-          </div>
-        </section>
-      </main>
-    </div>
-  );
-};
+          ))}
+        </div>
+      </MeetLink>
+    </Layout>
 
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    display: 'flex',
-    height: '100vh',
-    backgroundColor: '#d2e9f7',
-  },
-  main: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  meetingSection: {
-    display: 'flex',
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '20px',
-  },
-  leftPanel: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    marginRight: '20px',
-  },
-  videoContainer: {
-    width: '400px', // Increased width for better visibility
-    marginBottom: '20px',
-  },
-  video: {
-    width: '100%',
-    borderRadius: '10px',
-  },
-  meetingInfo: {
-    textAlign: 'center',
-    marginLeft: '100px', // Add margin to separate text from the image
-    marginBottom: '50px'
-  },
-  meetingTitle: {
-    fontSize: '2em', // Increased font size
-    marginBottom: '10px', // Add margin for spacing
-  },
-  meetingText: {
-    fontSize: '1.2em', // Increased font size
-    marginBottom: '20px', // Add margin for spacing
-  },
-  joinButton: {
-    backgroundColor: '#5a9',
-    color: 'white',
-    padding: '12px 24px', // Increased padding
-    margin: '10px 0', // Adjusted margin
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-    fontSize: '1em', // Adjusted font size
-  },
-  presentButton: {
-    backgroundColor: '#a95',
-    color: 'white',
-    padding: '12px 24px', // Increased padding
-    margin: '10px 15px', // Adjusted margin
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-    fontSize: '1em', // Adjusted font size
-  },
-  controls: {
-    display: 'flex',
-    justifyContent: 'center',
-    marginTop: '10px',
-  },
-  controlButton: {
-    backgroundColor: '#fff',
-    border: '1px solid #ccc',
-    borderRadius: '50%',
-    padding: '12px', // Increased padding
-    margin: '0 10px',
-    cursor: 'pointer',
-  },
-};
+  )
+}
 
-export default MeetingLink
+const MeetLink = styled.div`
+  .icon-container{
+    display : flex;
+    margin-top : 6rem;
+    gap : 3rem;
+  }
+  .icon{
+    width : 100px;
+    height : 100px;
+    border-radius: 20px;
+    display : flex;
+    justify-content: center;
+    gap : 10px;
+    align-items: center;
+    color : #ffffff;
+    font-size : 50px;
+  }
+  .name{
+    padding-top : 15px;
+    text-align : center;
+    font-family: "Noto Sans", sans-serif;
+    font-weight: 600;
+  }
+  .date{
+    font-family: "Noto Sans", sans-serif;
+    font-weight: 400;
+    font-size: 24px;
+  }
+  h1{
+    font-family: "Noto Sans", sans-serif;
+    font-weight: 600;
+    font-size : 60px;
+    margin-bottom : 0;
+  }
+`
+
+export default MeetingLink;
