@@ -1,9 +1,9 @@
 import { createGlobalStyle } from 'styled-components'
 import LoginPage from './components/pages/LoginPage'
 import { BrowserRouter , Route , Routes } from "react-router-dom"
-import MeetingLink from './components/pages/MeetingLink'
+import MeetingLink from './components/pages/MeetingJoin'
 import MeetingJoin from './components/pages/MeetingJoin'
-import MeetingMain from './components/pages/MeetingMain'
+import MeetingMain from './components/MeetingMain'
 
 function App() {
 
