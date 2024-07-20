@@ -1,0 +1,75 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #9ACEEB;
+    padding: 10px 20px;
+    color: black;
+    border-bottom: 1px solid #ccc; /* Optional: adds a border to separate the header from the main content */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 3D shadow effect */
+    position: relative;
+    z-index: 1;
+    margin: 10px; /* Add margin from sides */
+    border-radius: 10px; /* Make corners round */
+  }
+  
+  .back-button {
+    background: none;
+    border: none;
+    color: black;
+    font-size: 1.5em;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+  }
+  
+  h1 {
+    flex: 1;
+    text-align: center;
+    margin: 0;
+  }
+  
+  .join-request {
+    display: flex;
+    align-items: center;
+    color: black;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .join-request span {
+    margin-right: 10px;
+  }
+  
+  .accept-button, .decline-button {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    margin-left: 10px;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .accept-button {
+    color: green;
+  }
+  
+  .decline-button {
+    color: red;
+  }
+  
+  /* Adding gradient and additional shadow for more depth */
+  .header:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(145deg, #e0e0e0, #ffffff);
+    border-radius: 10px; /* Make corners round */
+    z-index: -1;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  }
+  
