@@ -15,6 +15,9 @@ function App() {
         <Route path = '/meetingLink' element = {<MeetingLink/>}/>
         <Route path = '/meetingJoin' element = {<MeetingJoin />}/>
         <Route path = '/meetingMain' element = {<MeetingMain />}/>
+        <Route path = '/schedule' element = {<Schedule />} />
+        <Route path = '/user' element = {<User />} />
+        <Route path = '/setting' element = {<Settings />} />
       </Routes>
     </BrowserRouter>
     <GlobalStyle />
@@ -27,6 +30,7 @@ const GlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
     background-color: #9ACEEB;
+    overflow: hidden;
   }
 `
 
