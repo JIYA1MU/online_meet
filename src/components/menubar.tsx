@@ -10,14 +10,14 @@ export const menubar = [
     },
     {
         icon : <LuCalendarClock />,
-        path : 'schedule'
+        path : '/schedule'
     },
     {
         icon : <FaUser />,
-        path : 'user'
+        path : '/user'
     },
     {
         icon : <IoSettings />,
-        path : 'setting'
+        path : '/setting'
     }
 ]
