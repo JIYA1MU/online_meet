@@ -53,6 +53,7 @@ export const MeetingLink = () => {
     <Layout>
       <MeetLink>
         <h1>{currentTime.toLocaleTimeString()}</h1>
+        <br></br>
         <div className = "date">{formatDate(currentTime)}</div>
         <div className="icon-container">
           {value.map(item => (
@@ -98,12 +99,14 @@ const MeetLink = styled.div`
     font-weight: 400;
     font-size: 24px;
   }
-  h1{
-    font-family: "Noto Sans", sans-serif;
-    font-weight: 600;
-    font-size : 60px;
-    margin-bottom : 0;
-  }
+  h1 {
+  font-family: "Noto Sans", sans-serif;
+  font-weight: 600;
+  font-size: 60px;
+  margin-bottom: 0;
+  text-align: left; 
+}
+
 `
 
 export default MeetingLink;
