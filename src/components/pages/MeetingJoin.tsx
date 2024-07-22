@@ -4,14 +4,13 @@ import styled from 'styled-components'
 import { MdPresentToAll } from "react-icons/md"
 
 const MeetingJoin = () => {
-
   return (
     <Layout>
       <Container>
         <section className = "meetingSection" >
           <div className = "leftPanel" >
             <div className = "videoContainer">
-              <img
+            <img
                 src="src/assets/12.webp" 
                 alt="Meeting"
                 className = 'video'
@@ -36,7 +35,7 @@ const MeetingJoin = () => {
             </button>
           </div>
         </section>
-      </Container>
+        </Container>
     </Layout>
   );
 };

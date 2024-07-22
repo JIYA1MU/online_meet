@@ -99,7 +99,6 @@ const MeetLink = styled.div`
     font-weight: 400;
     font-size: 24px;
   }
-<<<<<<< Updated upstream
   h1 {
   font-family: "Noto Sans", sans-serif;
   font-weight: 600;
@@ -108,15 +107,6 @@ const MeetLink = styled.div`
   text-align: left; 
 }
 
-=======
-  h1{
-    font-family: "Noto Sans", sans-serif;
-    font-weight: 600;
-    font-size : 60px;
-    margin-bottom : 0;
-    text-align : left;
-  }
->>>>>>> Stashed changes
 `
 
 export default MeetingLink;

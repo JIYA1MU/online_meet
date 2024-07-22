@@ -1,7 +1,4 @@
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
 import styled from 'styled-components';
 import Layout from '../Layout'; 
 
@@ -49,8 +46,4 @@ const Option = styled.div`
   }
 `;
 
-<<<<<<< Updated upstream
 export default Settings;
-=======
-export default Settings;
->>>>>>> Stashed changes
