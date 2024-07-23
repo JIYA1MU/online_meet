@@ -1,75 +1,132 @@
-import styled from "styled-components"
-import Layout from "../Layout"
-import { useEffect, useState } from "react";
-import { FaVideo } from "react-icons/fa";
-import { IoAddCircleSharp, IoShareSharp } from "react-icons/io5";
-import { BsFillCalendar2DateFill } from "react-icons/bs";
+import styled from 'styled-components';
+import Layout from '../Layout';
+import { useEffect, useState } from 'react';
+import { FaVideo } from 'react-icons/fa';
+import { IoAddCircleSharp, IoShareSharp } from 'react-icons/io5';
+import { BsFillCalendar2DateFill } from 'react-icons/bs';
+import { useNavigate } from 'react-router-dom';
 
-const value = [
+// Define the type for each item
+interface Item {
+  id: number;
+  icon: JSX.Element;
+  name: string;
+  bgColor: string;
+}
+
+// Define the value array with the correct type
+const value: Item[] = [
   {
-    id : 1,
-    icon : <FaVideo />,
-    name : 'New Meeting',
-    bgColor : 'orange'
+    id: 1,
+    icon: <FaVideo />,
+    name: 'New Meeting',
+    bgColor: 'orange'
   },
   {
-    id : 2,
-    icon : <IoAddCircleSharp />,
-    name : 'Join',
-    bgColor : '#035C7A'
+    id: 2,
+    icon: <IoAddCircleSharp />,
+    name: 'Join',
+    bgColor: '#035C7A'
   },
   {
-    id : 3,
-    icon : <BsFillCalendar2DateFill />,
-    name : 'Schedule',
-    bgColor : '#035C7A'
+    id: 3,
+    icon: <BsFillCalendar2DateFill />,
+    name: 'Schedule',
+    bgColor: '#035C7A'
   },
   {
-    id : 4,
-    icon : <IoShareSharp />,
-    name : 'Share screen',
-    bgColor : '#035C7A'
+    id: 4,
+    icon: <IoShareSharp />,
+    name: 'Share screen',
+    bgColor: '#035C7A'
   }
-]
+];
 
 export const MeetingLink = () => {
+  const [currentTime, setCurrentTime] = useState<Date>(new Date());
+  const navigate = useNavigate();
+
+  const formatDate = (date: Date): string => {
+    const options: Intl.DateTimeFormatOptions = { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    };
+    return date.toLocaleDateString('en-US', options);
+  };
+
+  // Use Item type for parameter
+  const handleItemClick = async (item: Item) => {
+    switch (item.name) {
+      case 'New Meeting':
+        navigate('/meetingjoin'); 
+        break;
+      case 'Schedule':
+        navigate('/schedule');
+        break;
+      case 'Share screen':
+        await startScreenSharing(); 
+        break;
+      default:
+        break;
+    }
+  };
+
   
-  const [currentTime , setCurrentTime] = useState(new Date());
- 
+  const startScreenSharing = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+        audio: false 
+      });
+
+     
+      const videoElement = document.createElement('video');
+      videoElement.srcObject = stream;
+      videoElement.autoplay = true;
+      document.body.appendChild(videoElement); 
+    } catch (error) {
+      console.error('Error sharing screen:', error);
+    }
+  };
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
 
-    return () => clearInterval(interval); 
+    return () => clearInterval(interval);
   }, []);
-
-  const formatDate = (date : any) => {
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    return date.toLocaleDateString('en-US', options);
-  }
 
   return (
     <Layout>
       <MeetLink>
         <h1>{currentTime.toLocaleTimeString()}</h1>
-        <br></br>
-        <div className = "date">{formatDate(currentTime)}</div>
+        <br />
+        <div className="date">{formatDate(currentTime)}</div>
         <div className="icon-container">
           {value.map(item => (
-            <div className = "box">
-              <div key={item.id} className="icon" style={{ backgroundColor: item.bgColor }}>
+            <div
+              key={item.id}
+              className="box"
+              onClick={() => handleItemClick(item)}
+              style={{ cursor: 'pointer' }} 
+            >
+              <div className="icon" style={{ backgroundColor: item.bgColor }}>
                 {item.icon}
               </div>
-              <div className = "name">{item.name}</div>         
+              <div className="name">{item.name}</div>
             </div>
           ))}
         </div>
       </MeetLink>
     </Layout>
+  );
+};
 
-  )
-}
+
+
 
 const MeetLink = styled.div`
   .icon-container{
