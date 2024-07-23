@@ -34,12 +34,6 @@ const value: Item[] = [
     name: 'Schedule',
     bgColor: '#035C7A'
   },
-  {
-    id: 4,
-    icon: <IoShareSharp />,
-    name: 'Share screen',
-    bgColor: '#035C7A'
-  }
 ];
 
 export const MeetingLink = () => {
@@ -59,37 +53,17 @@ export const MeetingLink = () => {
   // Use Item type for parameter
   const handleItemClick = async (item: Item) => {
     switch (item.name) {
-      case 'New Meeting':
+      case 'Join':
         navigate('/meetingjoin'); 
         break;
       case 'Schedule':
         navigate('/schedule');
-        break;
-      case 'Share screen':
-        await startScreenSharing(); 
         break;
       default:
         break;
     }
   };
 
-  
-  const startScreenSharing = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getDisplayMedia({
-        video: true,
-        audio: false 
-      });
-
-     
-      const videoElement = document.createElement('video');
-      videoElement.srcObject = stream;
-      videoElement.autoplay = true;
-      document.body.appendChild(videoElement); 
-    } catch (error) {
-      console.error('Error sharing screen:', error);
-    }
-  };
 
   useEffect(() => {
     const interval = setInterval(() => {
