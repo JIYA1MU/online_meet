@@ -198,6 +198,7 @@ const copyToClipboard = () => {
 };
 
 const MeetLink = styled.div`
+  margin : 8rem 10rem 10rem 20rem;
   .icon-container{
     display : flex;
     margin-top : 6rem;

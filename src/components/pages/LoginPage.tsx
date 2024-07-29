@@ -1,7 +1,21 @@
 import styled from "styled-components"
 import { FaArrowRight } from "react-icons/fa"
+import { useState } from "react"
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
+
+    const [email , setEmail] = useState('');
+    const [password , setPassword] = useState('');
+    const navigate = useNavigate();
+
+    const handleLogin = () => {
+        if(email === 'mugdha@abc.com' && password ==='12341234')
+            navigate(`/meetingMain`)
+        else{
+            alert("Wrong Credentials")
+        }
+    }
 
     return (
     <Container >
@@ -16,6 +30,8 @@ const LoginPage = () => {
                             type = "email" 
                             name = "email"
                             placeholder = "Enter Email"
+                            value = {email}
+                            onChange = {(e) => setEmail(e.target.value)}
                         />
                     </div>
                     <br />
@@ -25,10 +41,12 @@ const LoginPage = () => {
                             type = "password" 
                             name = "password" 
                             placeholder = "Enter Password"
+                            value = {password}
+                            onChange = {(e) => setPassword(e.target.value)}
                         />
                     </div>
                 </div>
-                <button type = "submit">
+                <button type = "submit" onClick = {handleLogin}>
                     <span>Login</span>
                     <span className= "arrow"><FaArrowRight /></span>
                 </button>
