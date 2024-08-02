@@ -5,7 +5,7 @@ import { JaaSMeeting } from '@jitsi/react-sdk';
 import io, { Socket } from 'socket.io-client';
 import RecordRTC from 'recordrtc';
 
-const socket: Socket = io('http://localhost:5000'); 
+const socket: Socket = io('http://localhost:5000');
 
 interface RequestData {
   id: string;
@@ -24,13 +24,37 @@ const MainScreen = () => {
   const [adminSecret, setAdminSecret] = useState<string>('');
   const [isParticipantApproved, setIsParticipantApproved] = useState<boolean>(false);
   const [pendingRequests, setPendingRequests] = useState<RequestData[]>([]);
-  const adminPassword = '1234';
-
+  const [jwtToken, setJwtToken] = useState<string>('');
+  const [tokenExpiry, setTokenExpiry] = useState<number>(0);
   const [recordingStatus, setRecordingStatus] = useState<'idle' | 'recording' | 'stopped'>('idle');
   const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const screenStreamRef = useRef<MediaStream | null>(null);
   const recorderRef = useRef<RecordRTC | null>(null);
+
+  const fetchNewToken = async () => {
+    try {
+      const response = await fetch('/api/get-new-token');
+      const data = await response.json();
+      console.log('Fetched token:', data.token);
+      console.log('Token expiry:', data.expiry);
+      setJwtToken(data.token);
+      setTokenExpiry(data.expiry); 
+    } catch (error) {
+      console.error('Failed to refresh token', error);
+    }
+  };
+
+  useEffect(() => {
+    const refreshInterval = setInterval(() => {
+      const now = Math.floor(Date.now() / 1000);
+      if (tokenExpiry - now <= 300) { 
+        fetchNewToken();
+      }
+    }, 60000); 
+
+    return () => clearInterval(refreshInterval);
+  }, [tokenExpiry]);
 
   const handleCutClick = () => {
     navigate('/meetingLeft');
@@ -41,8 +65,8 @@ const MainScreen = () => {
     api.addListener('videoConferenceJoined', () => {
       setIsMeetingJoined(true);
       if (isAdmin) {
-        api.executeCommand('password', adminPassword); 
-        api.executeCommand('subject', 'Meeting started'); 
+        api.executeCommand('password', '1234');
+        api.executeCommand('subject', 'Meeting started');
       }
     });
   };
@@ -92,9 +116,10 @@ const MainScreen = () => {
   };
 
   const handleAdminLogin = () => {
-    if (adminSecret === adminPassword) {
+    if (adminSecret === '1234') {
       setIsAdmin(true);
-      setIsParticipantApproved(true); // Automatically approve admin
+      setIsParticipantApproved(true); 
+      fetchNewToken(); 
     } else {
       alert('Invalid admin secret');
     }
@@ -129,9 +154,9 @@ const MainScreen = () => {
       {isParticipantApproved ? (
         <>
           <JaaSMeeting
-            appId={'vpaas-magic-cookie-f56a0b1f9fa94eec91107e3d674383be'}
+            appId={'vpaas-magic-cookie-f10619627d234c6aa68753377fea7985'}
             roomName="PleaseUseAGoodRoomName"
-            jwt={'eyJraWQiOiJ2cGFhcy1tYWdpYy1jb29raWUtZjU2YTBiMWY5ZmE5NGVlYzkxMTA3ZTNkNjc0MzgzYmUvZDJlNjg2LVNBTVBMRV9BUFAiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJqaXRzaSIsImlzcyI6ImNoYXQiLCJpYXQiOjE3MjI1Nzg1MzcsImV4cCI6MTcyMjU4NTczNywibmJmIjoxNzIyNTc4NTMyLCJzdWIiOiJ2cGFhcy1tYWdpYy1jb29raWUtZjU2YTBiMWY5ZmE5NGVlYzkxMTA3ZTNkNjc0MzgzYmUiLCJjb250ZXh0Ijp7ImZlYXR1cmVzIjp7ImxpdmVzdHJlYW1pbmciOnRydWUsIm91dGJvdW5kLWNhbGwiOnRydWUsInNpcC1vdXRib3VuZC1jYWxsIjpmYWxzZSwidHJhbnNjcmlwdGlvbiI6dHJ1ZSwicmVjb3JkaW5nIjp0cnVlfSwidXNlciI6eyJoaWRkZW4tZnJvbS1yZWNvcmRlciI6ZmFsc2UsIm1vZGVyYXRvciI6dHJ1ZSwibmFtZSI6InByaXlhbnNodWFnYXJ3YWwxMDA4IiwiaWQiOiJnb29nbGUtb2F1dGgyfDExNDIxOTI2OTU1MTcyMjMzNTc0MSIsImF2YXRhciI6IiIsImVtYWlsIjoicHJpeWFuc2h1YWdhcndhbDEwMDhAZ21haWwuY29tIn19LCJyb29tIjoiKiJ9.YWO3SNsTfbF_Pa6laCr1RqeYmIfwS6KxHGFa2EcgTLCCKpyCwVPufFLAbmMrctj61VCaPDMNdoxksZitjF9yiX6ys1xpNDIBq9IhyTVfSSnBeiDMUH8nvudAYOXKSz2WeCL9ga8ZjoYZcCyjK_OwKyMsawgzpXHzCK3OhwD4y37Ev4MdT4JhA3kRVaxzwGoQmrkt9PEnA4ivYSgNpgy8e7N3l_sXwRPvKiE3EjZseGbAVvWZntb4vr8F7rgQtRw22DGgHuliUQLtBbqwG1jGuRu35SgY4i25AloEEw-81xR2m4_oxX4CQj3QN0W0WnnbFUlipA_imJV9wWmFguLfDA'}
+            jwt={'eyJraWQiOiJ2cGFhcy1tYWdpYy1jb29raWUtZjEwNjE5NjI3ZDIzNGM2YWE2ODc1MzM3N2ZlYTc5ODUvZmNiZmVhLVNBTVBMRV9BUFAiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJqaXRzaSIsImlzcyI6ImNoYXQiLCJpYXQiOjE3MjI1MDg3MjksImV4cCI6MTcyMjUxNTkyOSwibmJmIjoxNzIyNTA4NzI0LCJzdWIiOiJ2cGFhcy1tYWdpYy1jb29raWUtZjEwNjE5NjI3ZDIzNGM2YWE2ODc1MzM3N2ZlYTc5ODUiLCJjb250ZXh0Ijp7ImZlYXR1cmVzIjp7ImxpdmVzdHJlYW1pbmciOnRydWUsIm91dGJvdW5kLWNhbGwiOnRydWUsInNpcC1vdXRib3VuZC1jYWxsIjpmYWxzZSwidHJhbnNjcmlwdGlvbiI6dHJ1ZSwicmVjb3JkaW5nIjp0cnVlfSwidXNlciI6eyJoaWRkZW4tZnJvbS1yZWNvcmRlciI6ZmFsc2UsIm1vZGVyYXRvciI6dHJ1ZSwibmFtZSI6Im11Z2RoYTYxMjMiLCJpZCI6Imdvb2dsZS1vYXV0aDJ8MTA0MTk3NzM1ODcxODIxNzU2NDY3IiwiYXZhdGFyIjoiIiwiZW1haWwiOiJtdWdkaGE2MTIzQGdtYWlsLmNvbSJ9fSwicm9vbSI6IioifQ.inb5lYh90PZL2XT0M0DDMPWUIrb0EzNqpbnm8PI7BQb5bF6RJYWjgmctfcv3lhvk3pcZ8tjTm0fMgNcOt2y3KVNyawMNxayYlnNSFGvF-fBtNWhyiNamu7flnXDcDj69VLlpll9EyDL82k9tKdscDJRhKlSBNHOhmLLdthBaTtToT4la5FzFq7u3Y_tRNu4nRrlBkOmKMLzfyGe5Li70oZJHyOyC255rpFYMCOY_lZTfIJ3JQRCFuORwLaDX8ED40tBJaZuprHLjDYY8uZkcRX92Qeda3pW4Wgleg6aFZHYoYqr_DEw5ROmbs7J3i7k1f6h9oGOuxrJshsSSwzPPPA'}
             configOverwrite={{
               disableThirdPartyRequests: true,
               disableLocalVideoFlip: true,
@@ -232,7 +257,7 @@ const FullScreen = styled.div`
   align-items: center;
   justify-content: center;
   position: relative;
-`;
+`
 
 const AdminLogin = styled.div`
   display: flex;
@@ -240,7 +265,7 @@ const AdminLogin = styled.div`
   align-items: center;
   justify-content: center;
   height: 100%;
-`;
+`
 
 const RecordingButtonContainer = styled.div`
   position: absolute;
@@ -248,15 +273,7 @@ const RecordingButtonContainer = styled.div`
   right: 20px;     // Distance from the right edge of the viewport
   display: flex;
   flex-direction: column;
-  align-items: center;  // Center items horizontally within the container
-  padding: 0;      // Remove padding to avoid extra space inside
-  margin-right: 1000px;    
-
-  @media (max-width: 768px) {
-    right: auto;     
-    left: 0;         
-    top: 10px;       
-  }
+  align-items: flex-start;
 `;
 
 const RecordingButton = styled.button`
@@ -271,17 +288,16 @@ const RecordingButton = styled.button`
   font-size: 16px;
   border-radius: 5px;
   cursor: pointer;
-
   &:hover {
     background-color: #0056b3;
   }
-`;
+`
 
 const RecordingOptions = styled.div`
   display: flex;
   flex-direction: column;
   margin-top: 10px;
-`;
+`
 
 const Button = styled.button`
   background-color: #007bff;
@@ -295,11 +311,10 @@ const Button = styled.button`
   font-size: 16px;
   border-radius: 5px;
   cursor: pointer;
-
   &:hover {
     background-color: #0056b3;
   }
-`;
+`
 
 const PendingRequests = styled.div`
   position: absolute;
@@ -311,7 +326,7 @@ const PendingRequests = styled.div`
   border: 1px solid #ddd;
   padding: 10px;
   border-radius: 5px;
-`;
+`
 
 const RequestItem = styled.div`
   display: flex;
@@ -322,6 +337,6 @@ const RequestItem = styled.div`
   span {
     margin-right: 10px;
   }
-`;
+`
 
 export default MainScreen;
