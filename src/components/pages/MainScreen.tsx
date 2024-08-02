@@ -5,6 +5,7 @@ import { JaaSMeeting } from '@jitsi/react-sdk';
 import io, { Socket } from 'socket.io-client';
 import RecordRTC from 'recordrtc';
 
+const socket: Socket = io('http://localhost:5000');
 
 interface RequestData {
   id: string;
