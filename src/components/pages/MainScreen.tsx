@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { JaaSMeeting } from '@jitsi/react-sdk';
-import { useReactMediaRecorder } from 'react-media-recorder';
 import io, { Socket } from 'socket.io-client';
+import RecordRTC from 'recordrtc';
 
-const socket: Socket = io('http://localhost:5000'); // Adjust the URL to your server's address
+const socket: Socket = io('http://localhost:5000'); 
 
 interface RequestData {
   id: string;
@@ -26,13 +26,11 @@ const MainScreen = () => {
   const [pendingRequests, setPendingRequests] = useState<RequestData[]>([]);
   const adminPassword = '1234';
 
-  // MediaRecorder hook
-  const {
-    status,
-    startRecording,
-    stopRecording,
-    mediaBlobUrl,
-  } = useReactMediaRecorder({ video: true, audio: true });
+  const [recordingStatus, setRecordingStatus] = useState<'idle' | 'recording' | 'stopped'>('idle');
+  const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const screenStreamRef = useRef<MediaStream | null>(null);
+  const recorderRef = useRef<RecordRTC | null>(null);
 
   const handleCutClick = () => {
     navigate('/meetingLeft');
@@ -43,28 +41,59 @@ const MainScreen = () => {
     api.addListener('videoConferenceJoined', () => {
       setIsMeetingJoined(true);
       if (isAdmin) {
-        api.executeCommand('password', adminPassword); // Lock the room with a password if admin
-        api.executeCommand('subject', 'Meeting started'); // You can add a custom command if needed
+        api.executeCommand('password', adminPassword); 
+        api.executeCommand('subject', 'Meeting started'); 
       }
     });
   };
 
-  const handleStartRecording = () => {
-    startRecording();
-    setShowRecordingOptions(false);
+  const startRecording = async () => {
+    try {
+      const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+      const webcamStream = await navigator.mediaDevices.getUserMedia({ video: true });
+
+      const combinedStream = new MediaStream([
+        ...screenStream.getVideoTracks(),
+        ...webcamStream.getVideoTracks(),
+      ]);
+
+      mediaStreamRef.current = combinedStream;
+      screenStreamRef.current = screenStream;
+
+      recorderRef.current = new RecordRTC(combinedStream, {
+        type: 'video',
+        mimeType: 'video/webm',
+      });
+
+      recorderRef.current.startRecording();
+      setRecordingStatus('recording');
+      alert('Recording started');
+    } catch (error) {
+      console.error('Error starting recording:', error);
+    }
   };
 
-  const handleStopRecording = () => {
-    stopRecording();
-    setShowRecordingOptions(false);
+  const stopRecording = () => {
+    if (recorderRef.current) {
+      recorderRef.current.stopRecording(() => {
+        const blob = recorderRef.current?.getBlob();
+        if (blob) {
+          setRecordedBlob(blob);
+          setRecordingStatus('stopped');
+          alert('Recording stopped');
+        }
+      });
+    }
   };
 
-  const handleSaveRecording = () => {
-    const a = document.createElement('a');
-    a.href = mediaBlobUrl || '';
-    a.download = 'recording.mp4';
-    a.click();
-    setShowRecordingOptions(false);
+  const saveRecording = () => {
+    if (recordedBlob) {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(recordedBlob);
+      a.download = 'recording.webm';
+      a.click();
+      alert('Recording saved');
+    }
   };
 
   const handleAdminLogin = () => {
@@ -105,9 +134,9 @@ const MainScreen = () => {
       {isParticipantApproved ? (
         <>
           <JaaSMeeting
-            appId={'vpaas-magic-cookie-f56a0b1f9fa94eec91107e3d674383be'}
+            appId={'vpaas-magic-cookie-f10619627d234c6aa68753377fea7985'}
             roomName="PleaseUseAGoodRoomName"
-            jwt={'eyJraWQiOiJ2cGFhcy1tYWdpYy1jb29raWUtZjU2YTBiMWY5ZmE5NGVlYzkxMTA3ZTNkNjc0MzgzYmUvZDJlNjg2LVNBTVBMRV9BUFAiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJqaXRzaSIsImlzcyI6ImNoYXQiLCJpYXQiOjE3MjI0MDQ0MDIsImV4cCI6MTcyMjQxMTYwMiwibmJmIjoxNzIyNDA0Mzk3LCJzdWIiOiJ2cGFhcy1tYWdpYy1jb29raWUtZjU2YTBiMWY5ZmE5NGVlYzkxMTA3ZTNkNjc0MzgzYmUiLCJjb250ZXh0Ijp7ImZlYXR1cmVzIjp7ImxpdmVzdHJlYW1pbmciOnRydWUsIm91dGJvdW5kLWNhbGwiOnRydWUsInNpcC1vdXRib3VuZC1jYWxsIjpmYWxzZSwidHJhbnNjcmlwdGlvbiI6dHJ1ZSwicmVjb3JkaW5nIjp0cnVlfSwidXNlciI6eyJoaWRkZW4tZnJvbS1yZWNvcmRlciI6ZmFsc2UsIm1vZGVyYXRvciI6dHJ1ZSwibmFtZSI6InByaXlhbnNodWFnYXJ3YWwxMDA4IiwiaWQiOiJnb29nbGUtb2F1dGgyfDExNDIxOTI2OTU1MTcyMjMzNTc0MSIsImF2YXRhciI6IiIsImVtYWlsIjoicHJpeWFuc2h1YWdhcndhbDEwMDhAZ21haWwuY29tIn19LCJyb29tIjoiKiJ9.CK4-lQDXtE4cwOxHBp8fqHqg-Nx9t0mstxeSOd7QLxkDm5O54gnnCKlJEP2ebg32Ca9fp_VoDR7rrSIbw0puoRGw8Pa9j-1rTl304oO5vPWOOzhk3IalaGmWp30to7NwRvi5nlh74xagSztM5WHknvDrvxJo6_IYpYq2Lbe70PVgswrE00QTMOuf3K6EzkqjnEPMg6CW_o8hmuHdvQ9VQ2f-65jDxbRpwXU64g_DVz0SfdU46AsPatbgKvYJ70BmKdJX4xLeBDxmICrEmUB_x4GbhvRL6ZI9Og4MAh56OzK8tpsN0qZTmkzZusFHmCDrnVfdmlQ2itLZ05UeeS_6Mw'}
+            jwt={'eyJraWQiOiJ2cGFhcy1tYWdpYy1jb29raWUtZjEwNjE5NjI3ZDIzNGM2YWE2ODc1MzM3N2ZlYTc5ODUvZmNiZmVhLVNBTVBMRV9BUFAiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJqaXRzaSIsImlzcyI6ImNoYXQiLCJpYXQiOjE3MjI1MDg3MjksImV4cCI6MTcyMjUxNTkyOSwibmJmIjoxNzIyNTA4NzI0LCJzdWIiOiJ2cGFhcy1tYWdpYy1jb29raWUtZjEwNjE5NjI3ZDIzNGM2YWE2ODc1MzM3N2ZlYTc5ODUiLCJjb250ZXh0Ijp7ImZlYXR1cmVzIjp7ImxpdmVzdHJlYW1pbmciOnRydWUsIm91dGJvdW5kLWNhbGwiOnRydWUsInNpcC1vdXRib3VuZC1jYWxsIjpmYWxzZSwidHJhbnNjcmlwdGlvbiI6dHJ1ZSwicmVjb3JkaW5nIjp0cnVlfSwidXNlciI6eyJoaWRkZW4tZnJvbS1yZWNvcmRlciI6ZmFsc2UsIm1vZGVyYXRvciI6dHJ1ZSwibmFtZSI6Im11Z2RoYTYxMjMiLCJpZCI6Imdvb2dsZS1vYXV0aDJ8MTA0MTk3NzM1ODcxODIxNzU2NDY3IiwiYXZhdGFyIjoiIiwiZW1haWwiOiJtdWdkaGE2MTIzQGdtYWlsLmNvbSJ9fSwicm9vbSI6IioifQ.inb5lYh90PZL2XT0M0DDMPWUIrb0EzNqpbnm8PI7BQb5bF6RJYWjgmctfcv3lhvk3pcZ8tjTm0fMgNcOt2y3KVNyawMNxayYlnNSFGvF-fBtNWhyiNamu7flnXDcDj69VLlpll9EyDL82k9tKdscDJRhKlSBNHOhmLLdthBaTtToT4la5FzFq7u3Y_tRNu4nRrlBkOmKMLzfyGe5Li70oZJHyOyC255rpFYMCOY_lZTfIJ3JQRCFuORwLaDX8ED40tBJaZuprHLjDYY8uZkcRX92Qeda3pW4Wgleg6aFZHYoYqr_DEw5ROmbs7J3i7k1f6h9oGOuxrJshsSSwzPPPA'}
             configOverwrite={{
               disableThirdPartyRequests: true,
               disableLocalVideoFlip: true,
@@ -159,20 +188,20 @@ const MainScreen = () => {
               {showRecordingOptions && (
                 <RecordingOptions>
                   <Button
-                    onClick={handleStartRecording}
-                    disabled={status === 'recording'}
+                    onClick={startRecording}
+                    disabled={recordingStatus === 'recording'}
                   >
                     Start Recording
                   </Button>
                   <Button
-                    onClick={handleStopRecording}
-                    disabled={status !== 'recording'}
+                    onClick={stopRecording}
+                    disabled={recordingStatus !== 'recording'}
                   >
                     Stop Recording
                   </Button>
                   <Button
-                    onClick={handleSaveRecording}
-                    disabled={status !== 'stopped'}
+                    onClick={saveRecording}
+                    disabled={recordingStatus !== 'stopped'}
                   >
                     Save Recording
                   </Button>
