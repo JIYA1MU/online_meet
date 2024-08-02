@@ -80,19 +80,14 @@ const MainScreen = () => {
         if (blob) {
           setRecordedBlob(blob);
           setRecordingStatus('stopped');
-          alert('Recording stopped');
+          alert('Recording stopped and saved');
+          // Trigger download
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = 'recording.webm';
+          a.click();
         }
       });
-    }
-  };
-
-  const saveRecording = () => {
-    if (recordedBlob) {
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(recordedBlob);
-      a.download = 'recording.webm';
-      a.click();
-      alert('Recording saved');
     }
   };
 
@@ -134,9 +129,9 @@ const MainScreen = () => {
       {isParticipantApproved ? (
         <>
           <JaaSMeeting
-            appId={'vpaas-magic-cookie-f10619627d234c6aa68753377fea7985'}
+            appId={'vpaas-magic-cookie-f56a0b1f9fa94eec91107e3d674383be'}
             roomName="PleaseUseAGoodRoomName"
-            jwt={'eyJraWQiOiJ2cGFhcy1tYWdpYy1jb29raWUtZjEwNjE5NjI3ZDIzNGM2YWE2ODc1MzM3N2ZlYTc5ODUvZmNiZmVhLVNBTVBMRV9BUFAiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJqaXRzaSIsImlzcyI6ImNoYXQiLCJpYXQiOjE3MjI1MDg3MjksImV4cCI6MTcyMjUxNTkyOSwibmJmIjoxNzIyNTA4NzI0LCJzdWIiOiJ2cGFhcy1tYWdpYy1jb29raWUtZjEwNjE5NjI3ZDIzNGM2YWE2ODc1MzM3N2ZlYTc5ODUiLCJjb250ZXh0Ijp7ImZlYXR1cmVzIjp7ImxpdmVzdHJlYW1pbmciOnRydWUsIm91dGJvdW5kLWNhbGwiOnRydWUsInNpcC1vdXRib3VuZC1jYWxsIjpmYWxzZSwidHJhbnNjcmlwdGlvbiI6dHJ1ZSwicmVjb3JkaW5nIjp0cnVlfSwidXNlciI6eyJoaWRkZW4tZnJvbS1yZWNvcmRlciI6ZmFsc2UsIm1vZGVyYXRvciI6dHJ1ZSwibmFtZSI6Im11Z2RoYTYxMjMiLCJpZCI6Imdvb2dsZS1vYXV0aDJ8MTA0MTk3NzM1ODcxODIxNzU2NDY3IiwiYXZhdGFyIjoiIiwiZW1haWwiOiJtdWdkaGE2MTIzQGdtYWlsLmNvbSJ9fSwicm9vbSI6IioifQ.inb5lYh90PZL2XT0M0DDMPWUIrb0EzNqpbnm8PI7BQb5bF6RJYWjgmctfcv3lhvk3pcZ8tjTm0fMgNcOt2y3KVNyawMNxayYlnNSFGvF-fBtNWhyiNamu7flnXDcDj69VLlpll9EyDL82k9tKdscDJRhKlSBNHOhmLLdthBaTtToT4la5FzFq7u3Y_tRNu4nRrlBkOmKMLzfyGe5Li70oZJHyOyC255rpFYMCOY_lZTfIJ3JQRCFuORwLaDX8ED40tBJaZuprHLjDYY8uZkcRX92Qeda3pW4Wgleg6aFZHYoYqr_DEw5ROmbs7J3i7k1f6h9oGOuxrJshsSSwzPPPA'}
+            jwt={'eyJraWQiOiJ2cGFhcy1tYWdpYy1jb29raWUtZjU2YTBiMWY5ZmE5NGVlYzkxMTA3ZTNkNjc0MzgzYmUvZDJlNjg2LVNBTVBMRV9BUFAiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJqaXRzaSIsImlzcyI6ImNoYXQiLCJpYXQiOjE3MjI1Nzg1MzcsImV4cCI6MTcyMjU4NTczNywibmJmIjoxNzIyNTc4NTMyLCJzdWIiOiJ2cGFhcy1tYWdpYy1jb29raWUtZjU2YTBiMWY5ZmE5NGVlYzkxMTA3ZTNkNjc0MzgzYmUiLCJjb250ZXh0Ijp7ImZlYXR1cmVzIjp7ImxpdmVzdHJlYW1pbmciOnRydWUsIm91dGJvdW5kLWNhbGwiOnRydWUsInNpcC1vdXRib3VuZC1jYWxsIjpmYWxzZSwidHJhbnNjcmlwdGlvbiI6dHJ1ZSwicmVjb3JkaW5nIjp0cnVlfSwidXNlciI6eyJoaWRkZW4tZnJvbS1yZWNvcmRlciI6ZmFsc2UsIm1vZGVyYXRvciI6dHJ1ZSwibmFtZSI6InByaXlhbnNodWFnYXJ3YWwxMDA4IiwiaWQiOiJnb29nbGUtb2F1dGgyfDExNDIxOTI2OTU1MTcyMjMzNTc0MSIsImF2YXRhciI6IiIsImVtYWlsIjoicHJpeWFuc2h1YWdhcndhbDEwMDhAZ21haWwuY29tIn19LCJyb29tIjoiKiJ9.YWO3SNsTfbF_Pa6laCr1RqeYmIfwS6KxHGFa2EcgTLCCKpyCwVPufFLAbmMrctj61VCaPDMNdoxksZitjF9yiX6ys1xpNDIBq9IhyTVfSSnBeiDMUH8nvudAYOXKSz2WeCL9ga8ZjoYZcCyjK_OwKyMsawgzpXHzCK3OhwD4y37Ev4MdT4JhA3kRVaxzwGoQmrkt9PEnA4ivYSgNpgy8e7N3l_sXwRPvKiE3EjZseGbAVvWZntb4vr8F7rgQtRw22DGgHuliUQLtBbqwG1jGuRu35SgY4i25AloEEw-81xR2m4_oxX4CQj3QN0W0WnnbFUlipA_imJV9wWmFguLfDA'}
             configOverwrite={{
               disableThirdPartyRequests: true,
               disableLocalVideoFlip: true,
@@ -197,13 +192,7 @@ const MainScreen = () => {
                     onClick={stopRecording}
                     disabled={recordingStatus !== 'recording'}
                   >
-                    Stop Recording
-                  </Button>
-                  <Button
-                    onClick={saveRecording}
-                    disabled={recordingStatus !== 'stopped'}
-                  >
-                    Save Recording
+                     Save Recording
                   </Button>
                 </RecordingOptions>
               )}
@@ -255,11 +244,19 @@ const AdminLogin = styled.div`
 
 const RecordingButtonContainer = styled.div`
   position: absolute;
-  bottom: 20px;
-  left: 20px;
+  top: 20px;       // Distance from the top of the viewport
+  right: 20px;     // Distance from the right edge of the viewport
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;  // Center items horizontally within the container
+  padding: 0;      // Remove padding to avoid extra space inside
+  margin-right: 1000px;    
+
+  @media (max-width: 768px) {
+    right: auto;     
+    left: 0;         
+    top: 10px;       
+  }
 `;
 
 const RecordingButton = styled.button`
